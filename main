@@ -60,9 +60,10 @@ void draw() {
   case 2:
     push();
     background(0);
-    textSize(32);
-    text("Game Over", width*.38, height*.5);
-    text("Press Enter To PLay Again", width*.24, height *.8);
+    textSize(50);
+    text("Game Over", width*.3, height*.5);
+    textSize(30);
+    text("Press Enter To Play Again", width*.24, height *.8);
     pop();
     break;
   }
