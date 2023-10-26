@@ -1,0 +1,220 @@
+//Variable
+Player player;
+ArrayList<Asteroid> asteroids;
+ArrayList<Laser> lasers;
+ArrayList<Pixel> pixelList;
+IntList astRemove;
+IntList lasRemove;
+IntList pixRemove;
+int gameState; //0 is start menue, 1 is the game, and 2 is game over. 
+int score;
+int round;
+int roundTitleCounter;
+boolean notRoundOne;
+PImage asteroidImage;
+
+void setup() {
+  size(700, 700);
+  background(0);
+  frameRate(60);
+  InstantiateVariables();
+  gameState = 0;
+  asteroidImage = loadImage("asteroid_3.png");
+}
+
+void InstantiateVariables() {
+  player = new Player();
+  asteroids = new ArrayList<Asteroid>();
+  for (int i=0; i < floor(random(6, 10)); i++) {
+    asteroids.add(new Asteroid());
+  }
+  lasers = new ArrayList<Laser>();
+  pixelList = new ArrayList<Pixel>();
+  astRemove = new IntList();
+  lasRemove = new IntList();
+  pixRemove = new IntList();
+  score = 0;
+  round = 1;
+  notRoundOne = false;
+  roundTitleCounter = 180;
+}
+
+void draw() {
+
+  switch(gameState) {
+  case 0:
+    push();
+    background(0);
+    textSize(32);
+    fill(255);
+    text("Press Enter", width*.38, height*.5);
+    pop();
+    break;
+
+  case 1:
+    RoundUpdate();
+    Update();
+    Render();
+    break;
+
+  case 2:
+    push();
+    background(0);
+    textSize(32);
+    text("Game Over", width*.38, height*.5);
+    text("Press Enter To PLay Again", width*.24, height *.8);
+    pop();
+    break;
+  }
+}
+
+// Update 
+void Update() {
+  player.Update();
+  for (int i=0; i < asteroids.size(); i++) {
+    asteroids.get(i).Update(); 
+    if (player.CheckCollision(asteroids.get(i))) gameState = 2;
+  }
+
+  for (int i=0; i < lasers.size(); i++) {
+    lasers.get(i).Update();
+  }
+
+  //Loop for checking to see if the asterid was hit by a laser. 
+
+  for (int l=0; l < lasers.size(); l++) {
+    for (int a=0; a < asteroids.size(); a++) {
+      if (lasers.get(l).CheckCollision(asteroids.get(a))) {
+        lasRemove.append(l);
+        astRemove.append(a);
+        score+=100;
+        //Loop for creating pixels
+
+        for (int n=0; n<15; n++) {
+          pixelList.add(new Pixel(asteroids.get(a).posX, asteroids.get(a).posY));
+        }
+        break;
+      }
+    }
+  }
+  for (int i=0; i<pixelList.size(); i++) {
+    if (pixelList.get(i).Update()) {
+      pixRemove.append(i);
+    }
+  }
+
+  //REMOVE LASERS AND ASTEROID
+  for (int i=0; i<lasRemove.size(); i++) {
+    if (lasRemove.get(i) < lasers.size()) lasers.remove(lasRemove.get(i));
+  }
+  lasRemove.clear();
+  for (int i=0; i<astRemove.size(); i++) {
+    if (astRemove.get(i) < asteroids.size()) asteroids.remove(astRemove.get(i));
+  }
+  astRemove.clear();
+  for (int i=0; i<pixRemove.size(); i++) {
+    if (pixRemove.get(i) < pixelList.size()) pixelList.remove(pixRemove.get(i));
+  }
+  pixRemove.clear();
+}
+
+void Render() {
+  background(0);
+  if (roundTitleCounter >0) {
+    push();
+    textSize(32);
+    text("Round " + round, width*.4, height*.4);
+    pop();
+  }
+  push();
+  textSize(32);
+  text("score: " + score, width*.05, height*.05);
+  pop();
+  player.Render();
+
+  for (int i=0; i < asteroids.size(); i++) {
+    asteroids.get(i).Render();
+  }
+
+  for (int i=0; i < lasers.size(); i++) {
+    lasers.get(i).Render();
+  }
+
+  for (int i=0; i < pixelList.size(); i++) {
+    pixelList.get(i).Render();
+  }
+}
+
+void RoundUpdate() {
+  if (roundTitleCounter>0) roundTitleCounter --; 
+  else {
+    roundTitleCounter = 0;
+    notRoundOne = true;
+  }
+
+  if (roundTitleCounter == 1 && notRoundOne) {
+    for (int i=0; i< floor(random(5, 8)); i++) {
+      asteroids.add(new Asteroid());
+    }
+  }
+
+  if (roundTitleCounter == 0 && asteroids.size() == 0) {
+    roundTitleCounter = 180;
+    round++;
+  }
+}
+
+void keyPressed() {
+  switch(gameState) {
+  case 0:
+    if (keyCode == 10) gameState = 1;
+
+    break;
+
+  case 1:
+
+    if (keyCode == 39) { //Right
+      player.isRotating = -1;
+    } else if (keyCode == 37) {//Left
+      player.isRotating = 1;
+    }
+    
+    if (keyCode == UP) {
+      if (!player.shotFired) {
+        lasers.add(player.Fire());
+        player.shotFired = true;
+      }
+    }
+
+    break;
+
+  case 2:
+    if (keyCode == 10) gameState = 1;
+    InstantiateVariables();
+    break;
+  }
+}
+
+void keyReleased() {
+  switch(gameState) {
+  case 0:
+
+    break;
+
+  case 1:
+   if (keyCode == 39) {
+      player.isRotating = 0;
+    } else if (keyCode == 37) {
+      player.isRotating = 0;
+    }
+    
+    if (keyCode == UP) {
+      if (player.shotFired) player.shotFired = false;
+    }
+    break;
+
+  case 2:
+
+    break;
+  }
+}
