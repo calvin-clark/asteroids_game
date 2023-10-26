@@ -1,0 +1,53 @@
+class Player {
+  //Variables
+  float posX;
+  float posY;
+  int size;
+  float rotation;
+  float MAXSPEED;
+  int isRotating;
+  boolean shotFired;
+  
+  Player() {
+    posX = width / 2;
+    posY = height / 2;
+    size = 15;
+    rotation = 0;
+    MAXSPEED = PI/60;
+    isRotating = 0; //0 = not moving 1=Right -1=Left
+    shotFired = false;
+  }
+  public void Update() {
+    if (isRotating == -1) { //Left
+      rotation = rotation + MAXSPEED;
+    } else if (isRotating == 1) { //Right
+      rotation = rotation - MAXSPEED;
+    }
+  }
+
+  public void Render() {
+    push();
+    translate(mouseX, mouseY);
+    rotate(rotation);
+    noFill();
+    stroke(255);
+    strokeWeight(2);
+    triangle(0, -size*1.5, -size, size, size, size);
+    pop();
+  }
+  
+  public Laser Fire(){
+    Laser beam = new Laser(mouseX, mouseY, rotation);
+    return beam;
+  }
+  
+    public boolean CheckCollision(Asteroid a){
+    float d = dist(mouseX, mouseY, a.posX, a.posY);
+    if(d < (a.size+size)*4/5){
+     return true;
+    }
+    else return false;
+   }
+   
+   
+}
