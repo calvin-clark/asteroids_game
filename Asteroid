@@ -1,0 +1,67 @@
+class Asteroid{
+ //Variables
+ float posX;
+ float posY;
+ float size;
+ float randDir;  //Radian value for the direction of the asteroid. 
+ float speed;  //Number of pixels moved per frame
+ float rotation;
+ 
+ Asteroid(){
+   RandPosition();
+   size = 50;
+   randDir = random (0, TWO_PI);
+   speed = 2;
+   rotate(random(0,70));
+ }
+ 
+ 
+ public void Update(){
+   posX += cos(randDir)*speed;
+   posY += sin(randDir)*speed;
+   Edge();
+;
+ }
+ 
+ public void Render(){
+   push();
+   translate(posX, posY);
+   noFill();
+   stroke(255);
+   strokeWeight(2);
+   image(asteroidImage, -25, -25, size, size);
+   pop();
+ }
+ 
+ private void Edge(){
+  if(posX > width) posX = 0;
+  if(posX < 0) posX = width;
+  if(posY > height) posY = 0;
+  if(posY < 0) posY = height;
+ }
+ 
+ private void RandPosition(){
+  boolean top = false;
+  boolean left = false;
+  if(floor(random(0,2)) == 0) top = true;
+  if(floor(random(0,2)) == 0) left = true;
+  
+  if(top && left){
+   posX = random(0, (width/2 - 100));
+   posY = random(0, (height/2 - 100));
+  }
+  else if(top && !left){
+   posX = random(width/2+100, width);
+   posY = random(0, (height/2 - 100));
+ }
+ else if (!top && left){
+    posX = random(0, (width/2 - 100));
+    posY = random((height/2+100),height);
+ }
+ else {
+    posX = random(width/2+100, width);
+    posY = random((height/2+100),height);
+
+   }
+ }
+}
